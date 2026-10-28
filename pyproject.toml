@@ -7,6 +7,10 @@ exclude = [".venv", "venv", "data", "docs/evidencias"]
 select = ["E", "F", "I", "UP", "B"]
 ignore = ["B008"]
 
+[tool.ruff.lint.per-file-ignores]
+# Los scripts de generacion de evidencias contienen textos largos para el informe.
+"scripts/*.py" = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v"

@@ -1,0 +1,12 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0
+rootdir: C:\Users\estudiante\Documents\Proyecto predeterminado\optifiber-ftth
+configfile: pyproject.toml
+testpaths: tests
+collected 21 items
+
+tests\test_dominio.py ..........                                         [ 47%]
+tests\test_persistencia_orm.py .....                                     [ 71%]
+tests\test_repositorios.py ......                                        [100%]
+
+============================= 21 passed in 0.13s ==============================
