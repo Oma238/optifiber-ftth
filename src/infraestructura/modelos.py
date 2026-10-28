@@ -1,4 +1,4 @@
-"""Modelos ORM de OptiFiber FTTH - ciclo 1: relacion Cliente-Pedido."""
+"""Modelos ORM de OptiFiber FTTH - ciclo 2: cascada Cliente-Pedido."""
 
 from __future__ import annotations
 
@@ -25,6 +25,7 @@ class ClienteModel(Base):
 
     pedidos: Mapped[list[PedidoModel]] = relationship(
         back_populates="cliente",
+        cascade="all, delete-orphan",
         order_by="PedidoModel.id",
     )
 
