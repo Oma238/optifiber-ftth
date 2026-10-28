@@ -10,7 +10,7 @@ El proyecto ya tiene un repositorio Git inicializado con:
 
 - Rama `main` con la estructura base.
 - Rama `feature/PBI-02-orm-persistencia` con los ciclos TDD.
-- Merge `--no-ff` hacia `main` (PR #2) al finalizar la preparación.
+- Merge `--no-ff` hacia `main` (PR #2) con hash **`329b4ea`**.
 - Tag `pbi-02-v1.0`.
 
 Verificar:

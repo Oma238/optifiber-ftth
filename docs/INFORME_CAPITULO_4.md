@@ -450,7 +450,8 @@ jobs:
 - Rama de trabajo: `feature/PBI-02-orm-persistencia`.
 - Pull Request: **#2** (abrir el enlace del repositorio en GitHub; completar la URL al publicar).
 - Revisión: Git Master (Omar Huallpayunca).
-- Merge: `--no-ff` hacia `main`, conservando la secuencia TDD.
+- Merge: **`329b4ea`** (`--no-ff`) hacia `main`, conservando la secuencia TDD.
+- Tag de entrega: **`pbi-02-v1.0`**.
 - Checks esperados: **Ruff** y **Pytest** en verde.
 - El repositorio local ya contiene el historial completo; la guía de publicación está en `docs/GUIA_GIT_Y_ENTREGA.md`.
 

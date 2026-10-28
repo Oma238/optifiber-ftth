@@ -15,6 +15,8 @@
 | RED repositorios | `417ed0f` | test: (RED) verificar repositorios y persistencia de pedidos | Julio Diaz |
 | GREEN repositorios | `27071a2` | feat: (GREEN) implementar repositorios, seed y CLI funcional de OptiFiber | Kevin Llerena |
 | REFACTOR | `9268085` | refactor: (REFACTOR) verificar suite con ruff y ordenar imports | Julio Diaz |
+| Documentación | `066d629` | docs: agregar PBI-02, distribución de roles, ERD e informe del Capítulo 4 | Omar Huallpayunca |
+| Merge PR #2 | `329b4ea` | Merge pull request #2 from feature/PBI-02-orm-persistencia | Omar Huallpayunca |
 
 Los hashes completos se pueden consultar con:
 

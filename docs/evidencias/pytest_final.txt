@@ -28,4 +28,4 @@ tests/test_repositorios.py::test_cliente_rechaza_documento_duplicado PASSED [ 90
 tests/test_repositorios.py::test_eliminar_cliente_aplica_cascada_a_pedidos PASSED [ 95%]
 tests/test_repositorios.py::test_catalogo_lista_productos_con_categoria_y_etiquetas PASSED [100%]
 
-============================= 21 passed in 0.13s ==============================
+============================= 21 passed in 0.16s ==============================

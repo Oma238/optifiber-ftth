@@ -1,0 +1,17 @@
+﻿*   329b4ea (HEAD -> main, tag: pbi-02-v1.0) Merge pull request #2 from feature/PBI-02-orm-persistencia
+|\  
+| * 066d629 (feature/PBI-02-orm-persistencia) docs: agregar PBI-02, distribution de roles, ERD e informe del Capitulo 4
+| * 9268085 refactor: (REFACTOR) verificar suite con ruff y ordenar imports
+| * 27071a2 feat: (GREEN) implementar repositorios, seed y CLI funcional de OptiFiber
+| * 417ed0f test: (RED) verificar repositorios y persistencia de pedidos
+| * 4f6d01c feat: (GREEN) implementar servicios de dominio para totales, descuento y stock
+| * 0bf652a test: (RED) verificar reglas de negocio puras del dominio
+| * df33bcd feat: (GREEN) implementar catalogo, etiquetas y detalle de pedido con N:M
+| * e397f22 test: (RED) verificar relacion N:M Producto-Etiqueta y detalles de pedido
+| * 72e423d feat: (GREEN) agregar cascade all, delete-orphan en relacion Cliente-Pedidos
+| * 33febea test: (RED) verificar eliminacion en cascada de pedidos al borrar cliente
+| * c368e49 feat: (GREEN) implementar modelos ORM Cliente y Pedido con relacion 1:N
+| * b292e8c test: (RED) verificar guardar cliente con sus pedidos en la capa ORM
+| * c394468 chore: configurar fixture db_session y clase Base para PBI-02
+|/  
+* cc4e5e7 chore: crear estructura base del proyecto OptiFiber FTTH

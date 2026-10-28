@@ -698,6 +698,7 @@ jobs:
         "Merge: --no-ff hacia main, conservando la secuencia TDD.",
         "Checks: Ruff y pytest en verde; SQLAlchemy declarado en requirements.txt.",
         f"Merge local: {hashes.get('merge', 'se registra al fusionar la rama')}.",
+        "Tag de entrega: pbi-02-v1.0.",
     ]:
         agregar_bullet(doc, texto)
 

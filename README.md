@@ -180,4 +180,4 @@ El detalle completo está en [`docs/evidencias/commits.md`](docs/evidencias/comm
 
 ## 9. Estado del PBI
 
-**PBI-02:** implementado, probado y aprobado. Rama `feature/PBI-02-orm-persistencia` fusionada a `main` mediante merge `--no-ff` (PR #2). Pipeline esperado: `ruff check .` y `pytest -v` en verde.
+**PBI-02:** implementado, probado y aprobado. Rama `feature/PBI-02-orm-persistencia` fusionada a `main` mediante el merge **`329b4ea`** (PR #2) y tag **`pbi-02-v1.0`**. Pipeline esperado: `ruff check .` y `pytest -v` en verde.

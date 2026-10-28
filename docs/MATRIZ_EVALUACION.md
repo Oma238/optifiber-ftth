@@ -15,7 +15,7 @@
 | 2 | **Fixture de base de datos en memoria:** configuración aislada para pruebas herméticas. | `create_engine("sqlite:///:memory:")`, `StaticPool`, `PRAGMA foreign_keys=ON`, `scope="function"`. | `tests/conftest.py` | ✅ |
 | 3 | **Pruebas de persistencia:** relación 1:N y eliminación en cascada en verde. | `21 passed`; casos 1:N, cascada, N:M y repositorios. | `tests/`, `docs/evidencias/pytest_final.txt` | ✅ |
 | 4 | **Historial de commits Git:** secuencia RED → GREEN → REFACTOR en la rama del PBI. | 13 commits con autores del equipo, incluyendo 5 ciclos RED/GREEN. | `git log --graph`, `docs/evidencias/commits.md` | ✅ |
-| 5 | **Pull Request y GitHub Actions:** checks de Ruff y pytest en verde, SQLAlchemy en requirements. | Workflow `ci.yml`; PR #2; merge `--no-ff`; `SQLAlchemy` en `requirements.txt`. | `.github/workflows/ci.yml`, `requirements.txt`, `docs/GUIA_GIT_Y_ENTREGA.md` | ✅ |
+| 5 | **Pull Request y GitHub Actions:** checks de Ruff y pytest en verde, SQLAlchemy en requirements. | Workflow `ci.yml`; PR #2; merge `329b4ea`; tag `pbi-02-v1.0`; `SQLAlchemy` en `requirements.txt`. | `.github/workflows/ci.yml`, `requirements.txt`, `docs/GUIA_GIT_Y_ENTREGA.md` | ✅ |
 | 6 | **Capítulo 4 del Informe:** secciones 4.1, 4.2 y 4.3 completas. | ERD, diccionario de datos, código ORM, fixture, tabla TDD y conclusiones. | `docs/INFORME_CAPITULO_4.md`, `docs/Informe_Capitulo_4_OptiFiber.docx` | ✅ |
 
 ---
