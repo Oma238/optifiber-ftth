@@ -1,4 +1,4 @@
-"""Pruebas de persistencia ORM del PBI-02: ciclo 1."""
+"""Pruebas de persistencia ORM del PBI-02: ciclos 1 y 2."""
 
 from sqlalchemy import select
 
@@ -26,3 +26,22 @@ def test_guardar_cliente_con_sus_pedidos(db_session):
     assert cliente_db is not None
     assert len(cliente_db.pedidos) == 2
     assert cliente_db.pedidos[0].cliente.nombre == "Ana Quispe"
+
+
+def test_eliminar_cliente_elimina_sus_pedidos(db_session):
+    # Dado un cliente con un pedido persistido
+    cliente = ClienteModel(nombre="Luis Ramos", documento="87654321")
+    PedidoModel(total=120.0, cliente=cliente)
+    db_session.add(cliente)
+    db_session.commit()
+    cliente_id = cliente.id
+
+    # Cuando se elimina el cliente
+    db_session.delete(cliente)
+    db_session.commit()
+
+    # Entonces sus pedidos tambien desaparecen de la base de datos
+    pedido_db = db_session.scalars(
+        select(PedidoModel).where(PedidoModel.cliente_id == cliente_id)
+    ).first()
+    assert pedido_db is None
