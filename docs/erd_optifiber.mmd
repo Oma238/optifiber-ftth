@@ -1,0 +1,58 @@
+erDiagram
+    CLIENTE ||--o{ PEDIDO : realiza
+    PEDIDO ||--|{ DETALLE_PEDIDO : contiene
+    PRODUCTO ||--o{ DETALLE_PEDIDO : referencia
+    CATEGORIA ||--o{ PRODUCTO : clasifica
+    PRODUCTO }o--o{ ETIQUETA : etiquetado
+
+    CLIENTE {
+        int id PK
+        string nombre
+        string documento UK
+        string telefono
+        string email
+        datetime creado_en
+    }
+
+    PEDIDO {
+        int id PK
+        date fecha
+        string estado
+        float total
+        int cliente_id FK
+    }
+
+    DETALLE_PEDIDO {
+        int id PK
+        int pedido_id FK
+        int producto_id FK
+        int cantidad
+        float precio_unitario
+        float subtotal
+    }
+
+    PRODUCTO {
+        int id PK
+        string sku UK
+        string nombre
+        float precio
+        int stock
+        bool activo
+        int categoria_id FK
+    }
+
+    CATEGORIA {
+        int id PK
+        string nombre UK
+        string descripcion
+    }
+
+    ETIQUETA {
+        int id PK
+        string nombre UK
+    }
+
+    PRODUCTO_ETIQUETA {
+        int producto_id PK, FK
+        int etiqueta_id PK, FK
+    }

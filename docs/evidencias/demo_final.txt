@@ -1,0 +1,46 @@
+﻿
+==============================================================================
+ DEMO FUNCIONAL OPTIFIBER - PERSISTENCIA ORM SQLALCHEMY
+==============================================================================
+
+CATALOGO DE PRODUCTOS FTTH
+----------------------------------------------------------------------------------------------------------------------
+SKU        Producto                             Categoria                        Precio  Stock  Etiquetas
+----------------------------------------------------------------------------------------------------------------------
+FIB-002    Cable ADSS 12 hilos 500 m            Fibra Optica                  S/ 890.00      8  empresa, mayorista, fibra
+FIB-001    Cable drop 1 hilo 100 m              Fibra Optica                   S/ 85.00     40  hogar, instalacion, fibra
+ACC-002    Conector SC/APC                      Accesorios de Instalacion       S/ 4.50    300  instalacion, fibra
+HER-001    Fusionadora de fibra optica          Herramientas                S/ 4,200.00      3  empresa, instalacion, equipo
+ONT-001    ONT GPON WiFi 5 dual band            Equipos ONT/ONU               S/ 220.00     25  hogar, empresa, equipo
+ONT-002    ONU XPON WiFi 6                      Equipos ONT/ONU               S/ 310.00     15  hogar, promocion, equipo
+HER-002    OTDR portatil                        Herramientas                S/ 6,800.00      2  empresa, equipo
+ACC-001    Roseta optica 2 puertos              Accesorios de Instalacion      S/ 18.00     80  hogar, instalacion
+RED-002    Router MikroTik hEX                  Redes y Conectividad          S/ 390.00     10  empresa, equipo
+RED-001    Switch Gigabit 8 puertos             Redes y Conectividad          S/ 260.00     12  empresa, equipo
+----------------------------------------------------------------------------------------------------------------------
+Total de productos activos: 10
+
+CLIENTES REGISTRADOS
+--------------------------------------------------------------------------------------------
+  ID  Documento    Cliente                        Telefono     Pedidos
+--------------------------------------------------------------------------------------------
+   1  12345678     Ana Quispe                     987654321          0
+   4  20512345678  Inversiones Andinas SAC        014567890          0
+   2  87654321     Luis Ramos                     912345678          0
+   3  45678912     Maria Huaman                   998877665          0
+--------------------------------------------------------------------------------------------
+Total de clientes: 4
+
+Pedido corporativo de demostracion creado con descuento por volumen.
+----------------------------------------------------------------------------------
+Pedido #1 | 2026-10-28 | PENDIENTE | Inversiones Andinas SAC (20512345678)
+  - Cable ADSS 12 hilos 500 m                x  2   S/ 890.00 =  S/ 1,780.00
+  - Switch Gigabit 8 puertos                 x  1   S/ 260.00 =    S/ 260.00
+  - Conector SC/APC                          x  4     S/ 4.50 =     S/ 18.00
+  TOTAL: S/ 1,955.10
+----------------------------------------------------------------------------------
+
+[CASCADA] Cliente temporal eliminado; pedido dependiente eliminado: SI.
+
+[OK] Demo finalizada. La persistencia, las relaciones y la cascada funcionan.
+==============================================================================
