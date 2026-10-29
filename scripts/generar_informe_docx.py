@@ -129,6 +129,18 @@ def agregar_tabla(
     doc.add_paragraph().paragraph_format.space_after = Pt(1)
 
 
+def agregar_imagen(doc: Document, ruta: Path, ancho: float = 16.2) -> None:
+    """Inserta una captura centrada con un ancho util para la pagina A4."""
+    if not ruta.exists():
+        doc.add_paragraph(f"[Captura pendiente: {ruta.name}]")
+        return
+    parrafo = doc.add_paragraph()
+    parrafo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    parrafo.paragraph_format.space_before = Pt(4)
+    parrafo.paragraph_format.space_after = Pt(2)
+    parrafo.add_run().add_picture(str(ruta), width=Cm(ancho))
+
+
 def agregar_caption(doc: Document, texto: str) -> None:
     parrafo = doc.add_paragraph(style="Caption")
     run = parrafo.add_run(texto)
@@ -144,9 +156,13 @@ def agregar_bullet(doc: Document, texto: str) -> None:
     parrafo.paragraph_format.space_after = Pt(2)
 
 
-def agregar_numero(doc: Document, texto: str) -> None:
-    parrafo = doc.add_paragraph(style="List Number")
+def agregar_numero(doc: Document, texto: str, numero: int) -> None:
+    parrafo = doc.add_paragraph()
+    run = parrafo.add_run(f"{numero}. ")
+    run.bold = True
     parrafo.add_run(texto)
+    parrafo.paragraph_format.left_indent = Cm(0.6)
+    parrafo.paragraph_format.first_line_indent = Cm(-0.4)
     parrafo.paragraph_format.space_after = Pt(2)
 
 
@@ -210,7 +226,7 @@ def agregar_encabezado_pie(doc: Document) -> None:
     run.font.color.rgb = GRIS
     run.bold = True
     parrafo.add_run("\t")
-    run2 = parrafo.add_run("PBI-02 · Capítulo 4")
+    run2 = parrafo.add_run("PBI-02 + PBI-03 · Capítulo 4")
     run2.font.size = Pt(8)
     run2.font.color.rgb = GRIS
     parrafo.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -260,7 +276,9 @@ def portada(doc: Document) -> None:
     parrafo.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     parrafo = doc.add_paragraph()
-    run = parrafo.add_run("Persistencia de Datos, Mapeo ORM\ny Pruebas con Fixtures")
+    run = parrafo.add_run(
+        "Persistencia de Datos, Mapeo ORM,\nPruebas con Fixtures e Interfaz Gráfica"
+    )
     run.font.name = "Calibri Light"
     run.font.size = Pt(20)
     run.font.color.rgb = NEGRO
@@ -292,9 +310,9 @@ def portada(doc: Document) -> None:
         [
             ["Curso", "Construcción de Software"],
             ["Trabajo", "Instructivo de Trabajo Colaborativo N° 04"],
-            ["PBI", "PBI-02 · Persistencia de clientes, pedidos y catálogo FTTH"],
-            ["Rama", "feature/PBI-02-orm-persistencia"],
-            ["Stack", "Python 3.12+ · SQLAlchemy 2.x · SQLite · pytest · Ruff · GitHub Actions"],
+            ["PBI", "PBI-02 · Persistencia de clientes, pedidos y catálogo FTTH + PBI-03 · Interfaz gráfica de escritorio"],
+            ["Rama", "feature/PBI-02-orm-persistencia y feature/PBI-03-interfaz-grafica"],
+            ["Stack", "Python 3.12+ · SQLAlchemy 2.x · SQLite · CustomTkinter · pytest · Ruff · GitHub Actions"],
             ["Fecha", "28 de octubre de 2026"],
         ],
         anchos=[1.6, 4.8],
@@ -341,9 +359,15 @@ def seccion_resumen(doc: Document) -> None:
     doc.add_paragraph(
         "La solución se desarrolló con ciclos TDD RED → GREEN → REFACTOR y un fixture de base de "
         "datos en memoria (sqlite:///:memory:) que garantiza pruebas herméticas. La suite final "
-        "tiene 21 pruebas aprobadas, Ruff no reporta errores y el workflow de GitHub Actions "
+        "tiene 23 pruebas aprobadas, Ruff no reporta errores y el workflow de GitHub Actions "
         "instala SQLAlchemy, ejecuta Ruff y pytest. La CLI permite demostrar el flujo completo: "
         "catálogo, alta de clientes, pedido con descuento de stock, reporte y eliminación en cascada."
+    )
+    doc.add_paragraph(
+        "Sobre esa base, el PBI-03 incorpora una aplicación de escritorio con CustomTkinter: "
+        "panel general, catálogo, clientes, pedidos y reportes; tema oscuro minimalista, formularios "
+        "modales, punto de venta con carrito, exportación CSV y pedidos de demostración idempotentes. "
+        "La interfaz reutiliza los repositorios y las reglas de negocio, por lo que no duplica la lógica."
     )
 
     agregar_tabla(
@@ -352,8 +376,9 @@ def seccion_resumen(doc: Document) -> None:
         [
             ["Entidades ORM", "6 (Cliente, Pedido, DetallePedido, Producto, Categoría, Etiqueta)"],
             ["Relaciones", "4 relaciones 1:N + 2 relaciones N:M (una pura y una con atributos)"],
-            ["Pruebas automatizadas", "21 passed"],
+            ["Pruebas automatizadas", "23 passed (21 del PBI-02 + 2 de datos demo)"],
             ["Calidad estática", "Ruff: All checks passed!"],
+            ["Interfaz", "GUI CustomTkinter con 5 pantallas, tema oscuro y exportación CSV"],
             ["Cobertura funcional", "Catálogo, clientes, pedidos, stock, descuento, reportes y cascada"],
             ["CI/CD", "GitHub Actions con Python 3.12, Ruff y pytest"],
         ],
@@ -363,18 +388,18 @@ def seccion_resumen(doc: Document) -> None:
 
 
 def seccion_erd(doc: Document, hashes: dict) -> None:
-    doc.add_page_break()
-    doc.add_heading("4.1 Modelo Entidad-Relación (ERD)", level=1)
+    encabezado = doc.add_heading("4.1 Modelo Entidad-Relación (ERD)", level=1)
+    encabezado.paragraph_format.page_break_before = True
 
     doc.add_heading("4.1.1 Objetivo del modelo", level=2)
-    for texto in [
+    for indice, texto in enumerate([
         "Identificar de forma única a cada cliente por DNI o RUC.",
         "Clasificar productos FTTH por categoría y etiquetas comerciales.",
         "Registrar pedidos con varias líneas, conservando el precio unitario histórico.",
         "Controlar el stock y calcular totales con descuento por volumen.",
         "Eliminar un cliente junto con sus pedidos y detalles sin dejar registros huérfanos.",
-    ]:
-        agregar_numero(doc, texto)
+    ], start=1):
+        agregar_numero(doc, texto, indice)
 
     doc.add_heading("4.1.2 Entidades del modelo", level=2)
     agregar_tabla(
@@ -640,7 +665,8 @@ def db_session():
             ["tests/test_persistencia_orm.py", "5", "1:N, cascada, N:M, cascada Pedido–Detalle, documento único."],
             ["tests/test_dominio.py", "10", "Subtotal, descuento, stock, cantidades, DNI/RUC."],
             ["tests/test_repositorios.py", "6", "Alta de pedido, stock, descuento, duplicados y cascada."],
-            ["Total", "21", "Suite hermética sobre sqlite:///:memory:."],
+            ["tests/test_seed.py", "2", "Catálogo inicial y pedidos demo idempotentes con descuento de stock."],
+            ["Total", "23", "Suite hermética sobre sqlite:///:memory:."],
         ],
         anchos=[2.2, 0.7, 3.5],
         tamano=8.5,
@@ -655,9 +681,10 @@ def db_session():
         if "test_dominio.py" in linea
         or "test_persistencia_orm.py" in linea
         or "test_repositorios.py" in linea
+        or "test_seed.py" in linea
         or "passed" in linea
     ]
-    agregar_codigo(doc, "\n".join(lineas[-6:]) if lineas else "21 passed", tamano=8)
+    agregar_codigo(doc, "\n".join(lineas[-6:]) if lineas else "23 passed", tamano=8)
     agregar_codigo(doc, leer_texto("ruff_final.txt", "All checks passed!"), tamano=8)
 
     doc.add_heading("4.3.5 Pipeline de GitHub Actions", level=2)
@@ -686,8 +713,9 @@ jobs:
         tamano=8,
     )
     doc.add_paragraph(
-        "requirements.txt declara SQLAlchemy>=2.0,<3.0; por eso el pipeline instala el ORM "
-        "antes de ejecutar las pruebas."
+        "requirements.txt declara SQLAlchemy>=2.0,<3.0, customtkinter>=5.2,<7.0 y "
+        "pillow>=10.0,<14.0; por eso el pipeline instala el ORM y la interfaz gráfica antes "
+        "de ejecutar las pruebas."
     )
 
     doc.add_heading("4.3.6 Pull Request, revisión y merge", level=2)
@@ -699,14 +727,115 @@ jobs:
         "Checks: Ruff y pytest en verde; SQLAlchemy declarado en requirements.txt.",
         f"Merge local: {hashes.get('merge', 'se registra al fusionar la rama')}.",
         "Tag de entrega: pbi-02-v1.0.",
+        "PBI-03: rama feature/PBI-03-interfaz-grafica, commits 37b0a15 (GUI) y f2bf169 (datos demo); merge --no-ff a main y tag pbi-03-gui-v1.0.",
     ]:
         agregar_bullet(doc, texto)
 
 
-def seccion_conclusiones(doc: Document) -> None:
-    doc.add_page_break()
-    doc.add_heading("4.4 Conclusiones", level=1)
+def seccion_gui(doc: Document, hashes: dict) -> None:
+    encabezado = doc.add_heading("4.4 Interfaz gráfica de escritorio", level=1)
+    encabezado.paragraph_format.page_break_before = True
+
+    doc.add_heading("4.4.1 Objetivo y decisiones de diseño", level=2)
+    doc.add_paragraph(
+        "El PBI-02 dejó una capa de persistencia sólida, pero su uso diario dependía de la "
+        "terminal. El PBI-03 añade una aplicación de escritorio funcional para que el asesor "
+        "comercial opere el sistema con mouse y teclado. Se eligió CustomTkinter por ser una "
+        "extensión moderna de Tkinter, ligera, multiplataforma y fácil de instalar."
+    )
     for texto in [
+        "Tema oscuro minimalista: fondo #070B10, paneles #0E151E, texto #F4F7FB y acento turquesa #2DD4BF.",
+        "Pocas imágenes: la identidad visual se resuelve con tipografía, tarjetas, píldoras de estado y un icono propio.",
+        "Reutilización de capas: la GUI llama a los repositorios; las reglas de totales, descuento, stock y documento siguen en src/dominio.",
+        "Terminal conservada: python -m src.main --cli y --demo mantienen el flujo anterior.",
+        "Primer arranque útil: sembrar_pedidos_demo() crea pedidos de ejemplo de forma idempotente por cliente, estado y líneas.",
+    ]:
+        agregar_bullet(doc, texto)
+
+    doc.add_heading("4.4.2 Pantallas implementadas", level=2)
+    agregar_tabla(
+        doc,
+        ["Pantalla", "Componentes principales", "Operaciones"],
+        [
+            ["Panel general", "Cuatro KPI, pedidos recientes, alerta de stock bajo", "Consultar el negocio y navegar"],
+            ["Catálogo", "Búsqueda, filtro, tabla, modales de producto y categoría", "Crear categorías y productos con etiquetas"],
+            ["Clientes", "Buscador, directorio, ficha con historial", "Crear, consultar y eliminar con cascada"],
+            ["Pedidos", "Selector de cliente, catálogo, carrito, resumen de totales", "Armar pedidos, validar stock, confirmar y cambiar estado"],
+            ["Reportes", "KPIs, ventas por estado, top de productos, inventario", "Analizar ventas y exportar CSV"],
+        ],
+        anchos=[1.2, 2.9, 2.5],
+        tamano=8.5,
+    )
+    agregar_caption(doc, "Tabla 6. Pantallas de la aplicación de escritorio.")
+    doc.add_paragraph(
+        "La navegación lateral resalta la pantalla activa y la barra superior muestra el título, "
+        "la fecha y un botón de refresco. Los atajos Ctrl+1 … Ctrl+5 cambian de pantalla y F5 "
+        "recarga la vista actual."
+    )
+
+    doc.add_heading("4.4.3 Evidencias de la interfaz", level=2)
+    agregar_imagen(doc, EVIDENCIAS / "gui" / "01_panel_general.png")
+    agregar_caption(doc, "Figura G1. Panel general con indicadores, pedidos recientes y alertas de stock.")
+    agregar_imagen(doc, EVIDENCIAS / "gui" / "04_pedidos.png")
+    agregar_caption(doc, "Figura G2. Punto de venta con cliente, catálogo, carrito y resumen de totales.")
+    agregar_imagen(doc, EVIDENCIAS / "gui" / "05_reportes.png")
+    agregar_caption(doc, "Figura G3. Reportes con ventas por estado, ranking de productos e inventario.")
+    doc.add_paragraph(
+        "Las capturas restantes (catálogo, clientes, modal de producto, detalle de pedido y ficha "
+        "de cliente) están disponibles en docs/evidencias/gui/."
+    )
+
+    doc.add_heading("4.4.4 Flujo funcional validado", level=2)
+    doc.add_paragraph(
+        "Además de las pruebas automatizadas, se ejecutó una prueba de humo sobre la GUI real con "
+        "una base temporal:"
+    )
+    for indice, texto in enumerate([
+        "Alta de una categoría y de un producto TST-001 con precio, stock y etiquetas desde los modales.",
+        "Alta de un cliente con documento válido desde la pantalla Clientes.",
+        "Selección del cliente, dos unidades en el carrito y confirmación del pedido.",
+        "Verificación del total (S/ 199.80) y del descuento de stock.",
+        "Cambio del pedido a estado PAGADO desde el modal de detalle.",
+        "Exportación del reporte a CSV en la carpeta reportes/.",
+    ], start=1):
+        agregar_numero(doc, texto, indice)
+    doc.add_paragraph(
+        "El flujo terminó sin errores y confirmó que la interfaz escribe en SQLite a través de los "
+        "mismos repositorios del PBI-02."
+    )
+
+    doc.add_heading("4.4.5 Estructura y resultado", level=2)
+    agregar_codigo(
+        doc,
+        """src/presentacion/gui/
+├── app.py            # Ventana principal, barra lateral, barra superior y routing
+├── tema.py           # Paleta, tipografías y radios
+├── componentes.py    # Tarjetas, tablas, botones, campos, modales y toasts
+├── utilidades.py     # Moneda, fechas, iniciales y colores semánticos
+└── pantallas/
+    ├── dashboard.py
+    ├── catalogo.py
+    ├── clientes.py
+    ├── pedidos.py
+    └── reportes.py""",
+        tamano=8,
+    )
+    doc.add_paragraph(
+        "La ventana principal crea una única sesión SQLAlchemy, inicializa el esquema, siembra los "
+        "datos y comparte los repositorios con todas las pantallas. Al cerrar, cierra la sesión y "
+        "libera el engine. La aplicación se abre con python -m src.main; la suite total queda en "
+        "23 pruebas aprobadas y Ruff no reporta errores."
+    )
+    if hashes.get("merge_pbi03"):
+        doc.add_paragraph(
+            f"Merge local del PBI-03: {hashes.get('merge_pbi03')}. Tag de entrega: pbi-03-gui-v1.0."
+        )
+
+
+def seccion_conclusiones(doc: Document) -> None:
+    encabezado = doc.add_heading("4.5 Conclusiones", level=1)
+    encabezado.paragraph_format.page_break_before = True
+    for indice, texto in enumerate([
         "El ERD refleja el negocio real: cliente, pedido, detalle, producto, categoría y etiqueta cubren el flujo comercial de OPTIFIBER sin tablas innecesarias.",
         "La separación de capas funcionó: las reglas de negocio se probaron sin base de datos y los modelos ORM se probaron con SQLite en memoria.",
         "La cascada es segura y explícita: eliminar un cliente elimina sus pedidos y detalles; categorías y productos se protegen con RESTRICT.",
@@ -714,8 +843,10 @@ def seccion_conclusiones(doc: Document) -> None:
         "El TDD dejó evidencia verificable: cada ciclo tiene un commit RED que falla por la razón esperada y un commit GREEN que lo resuelve.",
         "La solución es funcional: la CLI permite registrar clientes y pedidos, consultar el historial, ver reportes y comprobar la cascada.",
         "La calidad está automatizada: Ruff y pytest se ejecutan localmente y en GitHub Actions; el pipeline falla si alguna prueba o regla de estilo se rompe.",
-    ]:
-        agregar_numero(doc, texto)
+        "La GUI reutiliza la arquitectura: las pantallas llaman a los repositorios existentes y las reglas de negocio permanecen en src/dominio, sin duplicar lógica.",
+        "La experiencia de escritorio quedó completa: panel, catálogo, clientes, pedidos, reportes, formularios modales y exportación CSV cubren el flujo comercial sin terminal.",
+    ], start=1):
+        agregar_numero(doc, texto, indice)
 
     doc.add_heading("Lecciones aprendidas", level=2)
     for texto in [
@@ -729,22 +860,23 @@ def seccion_conclusiones(doc: Document) -> None:
 
 
 def seccion_checklist(doc: Document) -> None:
-    doc.add_heading("4.5 Lista de verificación para el docente", level=1)
+    doc.add_heading("4.6 Lista de verificación para el docente", level=1)
     agregar_tabla(
         doc,
         ["N°", "Criterio", "Evidencia", "Estado"],
         [
-            ["1", "Modelo ERD e infraestructura ORM", "§4.1, modelos.py, erd_optifiber.png", "CUMPLIDO"],
-            ["2", "Fixture de base de datos en memoria", "tests/conftest.py con sqlite:///:memory:", "CUMPLIDO"],
-            ["3", "Pruebas 1:N y cascada en verde", "21 passed; §4.3.2 y §4.3.4", "CUMPLIDO"],
-            ["4", "Historial RED → GREEN → REFACTOR", "git log; docs/evidencias/commits.md", "CUMPLIDO"],
-            ["5", "Pull Request y GitHub Actions", "ci.yml; PR #2; merge --no-ff", "CUMPLIDO"],
-            ["6", "Capítulo 4 completo", "Informe MD + DOCX", "CUMPLIDO"],
+            ["1", "Modelo ERD e infraestructura ORM", "§4.1, modelos.py, erd_optifiber.png", "SÍ"],
+            ["2", "Fixture de base de datos en memoria", "tests/conftest.py con sqlite:///:memory:", "SÍ"],
+            ["3", "Pruebas 1:N y cascada en verde", "23 passed; §4.3.2 y §4.3.4", "SÍ"],
+            ["4", "Historial RED → GREEN → REFACTOR", "git log; docs/evidencias/commits.md", "SÍ"],
+            ["5", "Pull Request y GitHub Actions", "ci.yml; PR #2; merge --no-ff", "SÍ"],
+            ["6", "Capítulo 4 completo", "Informe MD + DOCX", "SÍ"],
+            ["7", "Aplicación funcional con interfaz gráfica", "§4.4, src/presentacion/gui/ y docs/evidencias/gui/", "SÍ"],
         ],
-        anchos=[0.5, 2.3, 3.0, 0.6],
+        anchos=[0.5, 2.4, 2.9, 0.6],
         tamano=8.5,
     )
-    agregar_caption(doc, "Tabla 6. Checklist oficial del Trabajo Colaborativo N° 04.")
+    agregar_caption(doc, "Tabla 7. Checklist oficial del Trabajo Colaborativo N° 04.")
 
     doc.add_heading("Anexo A · PBI-02", level=2)
     agregar_tabla(
@@ -755,7 +887,7 @@ def seccion_checklist(doc: Document) -> None:
             ["Criterios", "Guardar cliente con pedidos; eliminar cliente en cascada; consultar producto con etiquetas; registrar pedido con detalle y stock; rechazar stock insuficiente; documento único."],
             ["Rama", "feature/PBI-02-orm-persistencia"],
             ["Estado", "Terminado · fusionado a main"],
-            ["Pruebas", "21 aprobadas"],
+            ["Pruebas", "21 aprobadas al cierre del PBI-02"],
         ],
         anchos=[1.1, 5.3],
         tamano=8.5,
@@ -766,18 +898,35 @@ def seccion_checklist(doc: Document) -> None:
         doc,
         ["Integrante", "Rol", "Aporte principal"],
         [
-            ["Omar Huallpayunca", "Git Master + PO/SM", "Repositorio, PBI, revisión, merge, informe."],
+            ["Omar Huallpayunca", "Git Master + PO/SM", "Repositorio, PBI, revisión, merges, tags e informe."],
             ["Kevin Llerena", "Lead Backend", "Dominio, repositorios, reglas de negocio."],
             ["Amaru Ai-me", "Database & ORM", "ERD, modelos, relaciones, cascadas y restricciones."],
-            ["Julio Diaz", "DevOps & QA + Frontend", "Fixture, pruebas, Ruff, CI, CLI y evidencias."],
+            ["Julio Diaz", "DevOps & QA + Frontend", "Fixture, pruebas, Ruff, CI, GUI CustomTkinter y evidencias."],
         ],
         anchos=[1.7, 1.9, 2.8],
+        tamano=8.5,
+    )
+
+    doc.add_heading("Anexo C · PBI-03", level=2)
+    agregar_tabla(
+        doc,
+        ["Campo", "Valor"],
+        [
+            ["Historia", "Como asesor comercial de OPTIFIBER deseo gestionar clientes, productos, pedidos y reportes desde una aplicación de escritorio para operar sin depender de la terminal."],
+            ["Criterios", "Abrir la GUI por defecto; navegar entre cinco pantallas; crear productos y clientes; registrar pedidos con stock; cambiar estados; eliminar clientes en cascada; exportar reportes."],
+            ["Rama", "feature/PBI-03-interfaz-grafica"],
+            ["Estado", "Terminado · fusionado a main"],
+            ["Pruebas", "23 aprobadas en total (21 del PBI-02 + 2 de datos demo)"],
+            ["Evidencias", "docs/evidencias/gui/"],
+        ],
+        anchos=[1.1, 5.3],
         tamano=8.5,
     )
 
     doc.add_heading("Referencias", level=2)
     for texto in [
         "SQLAlchemy Documentation. ORM Declarative Mapping y Relationship Configuration. https://docs.sqlalchemy.org/",
+        "CustomTkinter Documentation. Modern UI toolkit for Tkinter. https://customtkinter.tomschimansky.com/",
         "pytest Documentation. Fixtures. https://docs.pytest.org/",
         "Ruff Documentation. Linter and formatter. https://docs.astral.sh/ruff/",
         "GitHub Docs. GitHub Actions workflow syntax. https://docs.github.com/actions",
@@ -798,8 +947,16 @@ def main() -> None:
     seccion_erd(doc, hashes)
     seccion_orm(doc, hashes)
     seccion_tdd(doc, hashes)
+    seccion_gui(doc, hashes)
     seccion_conclusiones(doc)
     seccion_checklist(doc)
+
+    doc.core_properties.title = (
+        "Informe Capítulo 4 · Persistencia, ORM, Fixtures e Interfaz Gráfica"
+    )
+    doc.core_properties.author = "Equipo OPTIFIBER"
+    doc.core_properties.subject = "Trabajo Colaborativo N° 04 · PBI-02 + PBI-03"
+    doc.core_properties.comments = "Informe generado desde docs/INFORME_CAPITULO_4.md"
 
     doc.save(SALIDA)
     print(f"Informe generado: {SALIDA}")

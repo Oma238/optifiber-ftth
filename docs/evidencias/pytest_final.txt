@@ -1,31 +1,33 @@
-﻿============================= test session starts =============================
+============================= test session starts =============================
 platform win32 -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\estudiante\AppData\Local\Programs\Python\Python314\python.exe
 cachedir: .pytest_cache
-rootdir: C:\Users\estudiante\Documents\Proyecto predeterminado\optifiber-ftth
+rootdir: C:\Users\estudiante\Desktop\optifiber-ftth
 configfile: pyproject.toml
 testpaths: tests
-collecting ... collected 21 items
+collecting ... collected 23 items
 
 tests/test_dominio.py::test_calcular_subtotal_redondea_a_dos_decimales PASSED [  4%]
-tests/test_dominio.py::test_calcular_total_sin_descuento_bajo_el_umbral PASSED [  9%]
-tests/test_dominio.py::test_calcular_total_aplica_descuento_por_volumen PASSED [ 14%]
-tests/test_dominio.py::test_validar_stock_rechaza_cantidad_insuficiente PASSED [ 19%]
-tests/test_dominio.py::test_validar_cantidad_rechaza_cero_y_negativos PASSED [ 23%]
-tests/test_dominio.py::test_validar_documento_acepta_dni_y_ruc PASSED    [ 28%]
-tests/test_dominio.py::test_validar_documento_rechaza_formatos_invalidos[] PASSED [ 33%]
-tests/test_dominio.py::test_validar_documento_rechaza_formatos_invalidos[123] PASSED [ 38%]
-tests/test_dominio.py::test_validar_documento_rechaza_formatos_invalidos[1234567A] PASSED [ 42%]
-tests/test_dominio.py::test_validar_documento_rechaza_formatos_invalidos[123456789] PASSED [ 47%]
-tests/test_persistencia_orm.py::test_guardar_cliente_con_sus_pedidos PASSED [ 52%]
-tests/test_persistencia_orm.py::test_eliminar_cliente_elimina_sus_pedidos PASSED [ 57%]
-tests/test_persistencia_orm.py::test_relacion_nm_producto_etiqueta PASSED [ 61%]
-tests/test_persistencia_orm.py::test_eliminar_pedido_elimina_sus_detalles PASSED [ 66%]
-tests/test_persistencia_orm.py::test_documento_de_cliente_es_unico PASSED [ 71%]
-tests/test_repositorios.py::test_crear_pedido_descuenta_stock_y_calcula_total PASSED [ 76%]
-tests/test_repositorios.py::test_crear_pedido_aplica_descuento_por_volumen PASSED [ 80%]
-tests/test_repositorios.py::test_crear_pedido_rechaza_stock_insuficiente PASSED [ 85%]
-tests/test_repositorios.py::test_cliente_rechaza_documento_duplicado PASSED [ 90%]
-tests/test_repositorios.py::test_eliminar_cliente_aplica_cascada_a_pedidos PASSED [ 95%]
-tests/test_repositorios.py::test_catalogo_lista_productos_con_categoria_y_etiquetas PASSED [100%]
+tests/test_dominio.py::test_calcular_total_sin_descuento_bajo_el_umbral PASSED [  8%]
+tests/test_dominio.py::test_calcular_total_aplica_descuento_por_volumen PASSED [ 13%]
+tests/test_dominio.py::test_validar_stock_rechaza_cantidad_insuficiente PASSED [ 17%]
+tests/test_dominio.py::test_validar_cantidad_rechaza_cero_y_negativos PASSED [ 21%]
+tests/test_dominio.py::test_validar_documento_acepta_dni_y_ruc PASSED    [ 26%]
+tests/test_dominio.py::test_validar_documento_rechaza_formatos_invalidos[] PASSED [ 30%]
+tests/test_dominio.py::test_validar_documento_rechaza_formatos_invalidos[123] PASSED [ 34%]
+tests/test_dominio.py::test_validar_documento_rechaza_formatos_invalidos[1234567A] PASSED [ 39%]
+tests/test_dominio.py::test_validar_documento_rechaza_formatos_invalidos[123456789] PASSED [ 43%]
+tests/test_persistencia_orm.py::test_guardar_cliente_con_sus_pedidos PASSED [ 47%]
+tests/test_persistencia_orm.py::test_eliminar_cliente_elimina_sus_pedidos PASSED [ 52%]
+tests/test_persistencia_orm.py::test_relacion_nm_producto_etiqueta PASSED [ 56%]
+tests/test_persistencia_orm.py::test_eliminar_pedido_elimina_sus_detalles PASSED [ 60%]
+tests/test_persistencia_orm.py::test_documento_de_cliente_es_unico PASSED [ 65%]
+tests/test_repositorios.py::test_crear_pedido_descuenta_stock_y_calcula_total PASSED [ 69%]
+tests/test_repositorios.py::test_crear_pedido_aplica_descuento_por_volumen PASSED [ 73%]
+tests/test_repositorios.py::test_crear_pedido_rechaza_stock_insuficiente PASSED [ 78%]
+tests/test_repositorios.py::test_cliente_rechaza_documento_duplicado PASSED [ 82%]
+tests/test_repositorios.py::test_eliminar_cliente_aplica_cascada_a_pedidos PASSED [ 86%]
+tests/test_repositorios.py::test_catalogo_lista_productos_con_categoria_y_etiquetas PASSED [ 91%]
+tests/test_seed.py::test_sembrar_datos_carga_catalogo_y_clientes PASSED  [ 95%]
+tests/test_seed.py::test_sembrar_pedidos_demo_es_idempotente_y_descuenta_stock PASSED [100%]
 
-============================= 21 passed in 0.16s ==============================
+============================= 23 passed in 0.18s ==============================

@@ -1,39 +1,9 @@
-# Entornos virtuales
+﻿__pycache__/
+*.pyc
 .venv/
 venv/
-env/
-
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-build/
-dist/
-*.egg-info/
-
-# Pruebas y calidad
+.vscode/
 .pytest_cache/
 .ruff_cache/
-.coverage
-htmlcov/
-coverage.xml
-
-# Base de datos local (se genera al ejecutar la CLI)
-data/*.db
-data/*.sqlite
-data/*.sqlite3
-
-# Variables de entorno y secretos
-.env
-.env.*
-
-# Sistema operativo / editores
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# Salidas temporales
-*.log
-*.tmp
+*.db
+*.sqlite3

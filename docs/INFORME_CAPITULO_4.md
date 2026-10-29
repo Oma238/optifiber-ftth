@@ -1,16 +1,16 @@
 # Informe de Proyecto de Software · Capítulo 4
 
-## Persistencia de Datos, Mapeo ORM y Pruebas con Fixtures
+## Persistencia de Datos, Mapeo ORM, Pruebas con Fixtures e Interfaz Gráfica
 
 | Campo | Detalle |
 |---|---|
 | **Institución / curso** | Construcción de Software |
 | **Trabajo** | Instructivo de Trabajo Colaborativo N° 04 |
 | **Empresa aliada** | **OPTIFIBER** · venta de productos FTTH |
-| **PBI** | PBI-02 · Persistencia de clientes, pedidos y catálogo FTTH |
+| **PBI** | PBI-02 · Persistencia de clientes, pedidos y catálogo FTTH + PBI-03 · Interfaz gráfica de escritorio |
 | **Repositorio** | `optifiber-ftth` (GitHub del equipo) |
-| **Rama del PBI** | `feature/PBI-02-orm-persistencia` |
-| **Stack** | Python 3.12+ · SQLAlchemy 2.x · SQLite · pytest · Ruff · GitHub Actions |
+| **Rama del PBI** | `feature/PBI-02-orm-persistencia` y `feature/PBI-03-interfaz-grafica` |
+| **Stack** | Python 3.12+ · SQLAlchemy 2.x · SQLite · CustomTkinter · pytest · Ruff · GitHub Actions |
 | **Fecha** | 28 de octubre de 2026 |
 
 ### Integrantes
@@ -30,7 +30,9 @@
 
 OPTIFIBER necesita registrar su operación comercial de productos FTTH: clientes, catálogo, pedidos y líneas de detalle. El PBI-02 implementa esa persistencia con SQLAlchemy 2.x sobre SQLite, manteniendo la lógica de negocio en `src/dominio` y la infraestructura en `src/infraestructura`. El diseño incluye seis entidades, relaciones 1:N, una relación N:M pura (`Producto`–`Etiqueta`) y una relación N:M con datos adicionales (`Pedido`–`Producto` mediante `DetallePedido`), reglas de cascada y restricciones de integridad.
 
-La solución se desarrolló con ciclos TDD **RED → GREEN → REFACTOR** y un fixture de base de datos en memoria (`sqlite:///:memory:`) que garantiza pruebas herméticas. La suite final tiene **21 pruebas aprobadas**, Ruff no reporta errores y el workflow de GitHub Actions instala SQLAlchemy, ejecuta Ruff y pytest. La CLI permite demostrar el flujo completo: catálogo, alta de clientes, pedido con descuento de stock, reporte y eliminación en cascada.
+La solución se desarrolló con ciclos TDD **RED → GREEN → REFACTOR** y un fixture de base de datos en memoria (`sqlite:///:memory:`) que garantiza pruebas herméticas. La suite final tiene **23 pruebas aprobadas** (21 de persistencia y dominio + 2 de datos demo), Ruff no reporta errores y el workflow de GitHub Actions instala las dependencias, ejecuta Ruff y pytest. La CLI permite demostrar el flujo completo: catálogo, alta de clientes, pedido con descuento de stock, reporte y eliminación en cascada.
+
+Sobre esa base, el **PBI-03** incorpora una aplicación de escritorio con **CustomTkinter**: cinco pantallas funcionales, tema oscuro minimalista, formularios modales, punto de venta con carrito, reportes con exportación CSV y pedidos de demostración idempotentes. La GUI reutiliza los repositorios y las reglas de negocio, por lo que no duplica la lógica ni altera la suite existente.
 
 ---
 
@@ -385,18 +387,20 @@ Las salidas completas de cada etapa están en `docs/evidencias/01_red_ciclo1.txt
 | `tests/test_persistencia_orm.py` | 5 | Guardar cliente con pedidos; cascada cliente→pedidos; N:M producto–etiqueta; cascada pedido→detalles; documento único. |
 | `tests/test_dominio.py` | 10 | Subtotal con redondeo; total bajo el umbral; descuento por volumen; stock insuficiente; cantidades inválidas; DNI/RUC válidos e inválidos. |
 | `tests/test_repositorios.py` | 6 | Alta de pedido con descuento de stock; descuento por volumen; stock insuficiente con rollback; documento duplicado; cascada desde repositorio; catálogo con categoría y etiquetas. |
-| **Total** | **21** | Suite hermética sobre `sqlite:///:memory:`. |
+| `tests/test_seed.py` | 2 | Carga inicial del catálogo sin duplicados; pedidos demo idempotentes con descuento de stock. |
+| **Total** | **23** | Suite hermética sobre `sqlite:///:memory:`. |
 
 ## 4.3.4 Evidencia de ejecución
 
 Salida de `python -m pytest -v` (extracto):
 
 ```text
-tests/test_dominio.py ..........                                         [ 47%]
-tests/test_persistencia_orm.py .....                                     [ 71%]
-tests/test_repositorios.py ......                                        [100%]
+tests/test_dominio.py ..........                                         [ 43%]
+tests/test_persistencia_orm.py .....                                     [ 65%]
+tests/test_repositorios.py ......                                        [ 91%]
+tests/test_seed.py ..                                                    [100%]
 
-============================= 21 passed in 0.13s ==============================
+============================== 23 passed in 0.19s ==============================
 ```
 
 Salida de `python -m ruff check .`:
@@ -443,7 +447,7 @@ jobs:
       - run: pytest -v
 ```
 
-`requirements.txt` declara `SQLAlchemy>=2.0,<3.0`, por lo que el pipeline instala el ORM antes de ejecutar las pruebas.
+`requirements.txt` declara `SQLAlchemy>=2.0,<3.0`, `customtkinter>=5.2,<7.0` y `pillow>=10.0,<14.0`, por lo que el pipeline instala el ORM y la interfaz gráfica antes de ejecutar las pruebas.
 
 ## 4.3.6 Pull Request, revisión y merge
 
@@ -453,11 +457,90 @@ jobs:
 - Merge: **`329b4ea`** (`--no-ff`) hacia `main`, conservando la secuencia TDD.
 - Tag de entrega: **`pbi-02-v1.0`**.
 - Checks esperados: **Ruff** y **Pytest** en verde.
+- PBI-03: rama `feature/PBI-03-interfaz-grafica`, commits `37b0a15` (GUI) y `f2bf169` (datos demo); merge `--no-ff` y tag `pbi-03-gui-v1.0` al cierre.
 - El repositorio local ya contiene el historial completo; la guía de publicación está en `docs/GUIA_GIT_Y_ENTREGA.md`.
 
 ---
 
-# 4.4 Conclusiones
+# 4.4 Interfaz gráfica de escritorio
+
+## 4.4.1 Objetivo y decisiones de diseño
+
+El PBI-02 dejó una capa de persistencia sólida, pero su uso diario dependía de la terminal. El PBI-03 añade una **aplicación de escritorio funcional** para que el asesor comercial pueda operar el sistema con mouse y teclado, sin escribir comandos. Se eligió **CustomTkinter** por ser una extensión moderna de Tkinter, ligera, multiplataforma y fácil de instalar en el entorno del curso.
+
+Decisiones principales:
+
+- **Tema oscuro minimalista:** fondo `#070B10`, paneles `#0E151E`, texto claro `#F4F7FB` y acento turquesa `#2DD4BF`.
+- **Pocas imágenes:** la identidad visual se resuelve con tipografía, tarjetas, píldoras de estado y un icono propio; las capturas se usan solo como evidencia.
+- **Reutilización de capas:** la GUI llama a `ClienteRepositorio`, `CatalogoRepositorio` y `PedidoRepositorio`; las reglas de totales, descuento, stock y documento siguen en `src/dominio`.
+- **Terminal conservada:** `python -m src.main --cli` y `python -m src.main --demo` mantienen el flujo anterior para demostraciones y automatización.
+- **Primer arranque útil:** `sembrar_pedidos_demo()` crea pedidos de ejemplo de forma idempotente (cliente + estado + líneas) para que el panel tenga actividad sin duplicar datos.
+
+## 4.4.2 Pantallas implementadas
+
+| Pantalla | Componentes principales | Operaciones |
+|---|---|---|
+| **Panel general** | Cuatro KPI, lista de pedidos recientes, alerta de stock bajo | Consultar el estado del negocio y navegar a otras pantallas |
+| **Catálogo** | Búsqueda, filtro por categoría, tabla, modales de producto y categoría | Crear categorías y productos con etiquetas |
+| **Clientes** | Buscador, directorio, ficha con historial | Crear clientes, ver historial y eliminar con cascada |
+| **Pedidos** | Selector de cliente, catálogo, carrito, resumen de totales | Armar pedidos, validar stock, confirmar venta y cambiar estado |
+| **Reportes** | KPIs, ventas por estado, top de productos, inventario por categoría | Analizar ventas y exportar un CSV |
+
+La navegación lateral resalta la pantalla activa y la barra superior muestra el título, la fecha y un botón de refresco. Los atajos `Ctrl+1` … `Ctrl+5` cambian de pantalla y `F5` recarga la vista actual.
+
+![Panel general de OptiFiber](evidencias/gui/01_panel_general.png)
+
+**Figura G1.** Panel general con indicadores, pedidos recientes y alertas de stock.
+
+![Punto de venta de pedidos](evidencias/gui/04_pedidos.png)
+
+**Figura G2.** Punto de venta con cliente, catálogo, carrito y resumen de totales.
+
+![Reportes comerciales](evidencias/gui/05_reportes.png)
+
+**Figura G3.** Reportes con ventas por estado, ranking de productos e inventario por categoría.
+
+Las capturas restantes (catálogo, clientes, modales de producto, pedido y ficha de cliente) están en `docs/evidencias/gui/`.
+
+## 4.4.3 Flujo funcional validado
+
+Además de las pruebas automatizadas, se ejecutó una prueba de humo sobre la GUI real con una base temporal:
+
+1. Alta de una categoría desde el modal de catálogo.
+2. Alta de un producto `TST-001` con precio, stock, categoría y etiquetas.
+3. Alta de un cliente con documento válido.
+4. Selección del cliente, dos unidades del producto en el carrito y confirmación del pedido.
+5. Verificación del total (`S/ 199.80`) y del descuento de stock.
+6. Cambio del pedido a estado `PAGADO` desde el modal de detalle.
+7. Exportación del reporte a CSV.
+
+El flujo terminó sin errores y confirmó que la interfaz escribe en SQLite a través de los mismos repositorios del PBI-02.
+
+## 4.4.4 Estructura de la interfaz
+
+```text
+src/presentacion/gui/
+├── app.py            # Ventana principal, barra lateral, barra superior y routing
+├── tema.py           # Paleta, tipografías y radios
+├── componentes.py    # Tarjetas, tablas, botones, campos, modales y toasts
+├── utilidades.py     # Moneda, fechas, iniciales y colores semánticos
+└── pantallas/
+    ├── dashboard.py
+    ├── catalogo.py
+    ├── clientes.py
+    ├── pedidos.py
+    └── reportes.py
+```
+
+La ventana principal crea una única sesión SQLAlchemy, inicializa el esquema, siembra los datos y comparte los repositorios con todas las pantallas. Al cerrar, cierra la sesión y libera el engine.
+
+## 4.4.5 Resultado
+
+La aplicación se abre con `python -m src.main`, muestra el panel general y permite completar el ciclo comercial completo sin terminal. La suite total queda en **23 pruebas aprobadas** y Ruff no reporta errores. La CLI sigue disponible como modo alternativo.
+
+---
+
+# 4.5 Conclusiones
 
 1. **El ERD refleja el negocio real:** cliente, pedido, detalle, producto, categoría y etiqueta cubren el flujo comercial de OPTIFIBER sin tablas innecesarias.
 2. **La separación de capas funcionó:** las reglas de negocio se probaron sin base de datos y los modelos ORM se probaron con SQLite en memoria.
@@ -466,6 +549,8 @@ jobs:
 5. **El TDD dejó evidencia verificable:** cada ciclo tiene un commit RED que falla por la razón esperada y un commit GREEN que lo resuelve.
 6. **La solución es funcional:** la CLI permite registrar clientes y pedidos, consultar el historial, ver reportes y comprobar la cascada.
 7. **La calidad está automatizada:** Ruff y pytest se ejecutan localmente y en GitHub Actions; el pipeline falla si alguna prueba o regla de estilo se rompe.
+8. **La GUI reutiliza la arquitectura:** las pantallas llaman a los repositorios existentes y las reglas de negocio permanecen en `src/dominio`, sin duplicar lógica.
+9. **La experiencia de escritorio quedó completa:** panel, catálogo, clientes, pedidos, reportes, formularios modales y exportación CSV cubren el flujo comercial sin terminal.
 
 ### Lecciones aprendidas
 
@@ -477,16 +562,17 @@ jobs:
 
 ---
 
-# 4.5 Lista de verificación para el docente
+# 4.6 Lista de verificación para el docente
 
 | N° | Criterio | Evidencia | Estado |
 |---:|---|---|---|
 | 1 | Modelo ERD e infraestructura ORM | §4.1, `src/infraestructura/modelos.py`, `docs/erd_optifiber.png` | ✅ |
 | 2 | Fixture de base de datos en memoria | `tests/conftest.py` con `sqlite:///:memory:` y `StaticPool` | ✅ |
-| 3 | Pruebas de persistencia 1:N y cascada en verde | `21 passed`; §4.3.2 y §4.3.4 | ✅ |
+| 3 | Pruebas de persistencia 1:N y cascada en verde | `23 passed`; §4.3.2 y §4.3.4 | ✅ |
 | 4 | Historial de commits RED → GREEN → REFACTOR | `git log --graph --oneline`; `docs/evidencias/commits.md` | ✅ |
 | 5 | Pull Request y GitHub Actions | `.github/workflows/ci.yml`; PR #2 y merge `--no-ff` | ✅ |
 | 6 | Capítulo 4 del informe completo | Este documento + `docs/Informe_Capitulo_4_OptiFiber.docx` | ✅ |
+| 7 | Aplicación funcional con interfaz gráfica | §4.4, `src/presentacion/gui/` y `docs/evidencias/gui/` | ✅ |
 
 ---
 
@@ -498,19 +584,30 @@ jobs:
 | **Criterios** | Guardar cliente con pedidos; eliminar cliente en cascada; consultar producto con etiquetas; registrar pedido con detalle y stock; rechazar stock insuficiente; documento único. |
 | **Rama** | `feature/PBI-02-orm-persistencia` |
 | **Estado** | Terminado · fusionado a `main` |
-| **Pruebas** | 21 aprobadas |
+| **Pruebas** | 21 aprobadas al cierre del PBI-02 |
 | **Evidencias** | `docs/evidencias/` |
 
 # Anexo B · Distribución del equipo
 
 | Integrante | Rol | Aporte principal |
 |---|---|---|
-| Omar Huallpayunca | Git Master + PO/SM | Repositorio, PBI, revisión, merge, informe. |
+| Omar Huallpayunca | Git Master + PO/SM | Repositorio, PBI, revisión, merges, tags e informe. |
 | Kevin Llerena | Lead Backend | Dominio, repositorios, reglas de negocio. |
 | Amaru Ai-me | Database & ORM | ERD, modelos, relaciones, cascadas y restricciones. |
-| Julio Diaz | DevOps & QA + Frontend | Fixture, pruebas, Ruff, CI, CLI y evidencias. |
+| Julio Diaz | DevOps & QA + Frontend | Fixture, pruebas, Ruff, CI, GUI CustomTkinter y evidencias. |
 
 El detalle está en `docs/DISTRIBUCION_EQUIPO.md`.
+
+# Anexo C · PBI-03
+
+| Campo | Valor |
+|---|---|
+| **Historia** | Como asesor comercial de OPTIFIBER deseo gestionar clientes, productos, pedidos y reportes desde una aplicación de escritorio para operar sin depender de la terminal. |
+| **Criterios** | Abrir la GUI por defecto; navegar entre cinco pantallas; crear productos y clientes; registrar pedidos con stock; cambiar estados; eliminar clientes en cascada; exportar reportes. |
+| **Rama** | `feature/PBI-03-interfaz-grafica` |
+| **Estado** | Terminado · fusionado a `main` |
+| **Pruebas** | 23 aprobadas en total (21 del PBI-02 + 2 de datos demo) |
+| **Evidencias** | `docs/evidencias/gui/` |
 
 ---
 
