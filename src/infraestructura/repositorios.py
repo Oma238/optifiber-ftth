@@ -161,6 +161,7 @@ class CatalogoRepositorio:
             stock=stock,
             categoria=categoria,
         )
+        self.session.add(producto)
 
         for nombre_etiqueta in etiquetas:
             etiqueta = self.session.scalars(
@@ -170,7 +171,6 @@ class CatalogoRepositorio:
                 etiqueta = EtiquetaModel(nombre=nombre_etiqueta.strip())
             producto.etiquetas.append(etiqueta)
 
-        self.session.add(producto)
         self.session.commit()
         self.session.refresh(producto)
         return producto

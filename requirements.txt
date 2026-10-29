@@ -1,5 +1,7 @@
-# Dependencias del proyecto OptiFiber FTTH - PBI-02
-# Persistencia, pruebas y calidad de codigo
+# Dependencias del proyecto OptiFiber FTTH
+# Persistencia, interfaz grafica, pruebas y calidad de codigo
 SQLAlchemy>=2.0,<3.0
+customtkinter>=5.2,<7.0
+pillow>=10.0,<14.0
 pytest>=8.0,<10.0
 ruff>=0.6,<1.0

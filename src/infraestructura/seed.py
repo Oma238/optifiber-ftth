@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from datetime import date, timedelta
 
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session, selectinload
+
+from src.dominio.servicios import ErrorDominio
 from src.infraestructura.modelos import (
     CategoriaModel,
     ClienteModel,
+    DetallePedidoModel,
     EtiquetaModel,
+    PedidoModel,
     ProductoModel,
 )
+from src.infraestructura.repositorios import PedidoRepositorio
 
 CATEGORIAS = [
     ("Fibra Optica", "Cables drop, ADSS y soluciones de fibra optica."),
@@ -191,3 +197,60 @@ def sembrar_datos(session: Session) -> None:
         session.add(ClienteModel(**datos))
 
     session.commit()
+
+
+# Pedidos de ejemplo: (documento, items, estado, dias_atras)
+PEDIDOS_DEMO = [
+    ("12345678", [("FIB-001", 2), ("ONT-001", 1), ("ACC-002", 4)], "PAGADO", 1),
+    (
+        "20512345678",
+        [("FIB-002", 2), ("RED-001", 1), ("RED-002", 1)],
+        "ENVIADO",
+        3,
+    ),
+    ("87654321", [("ONT-002", 1), ("ACC-001", 2)], "PENDIENTE", 6),
+    ("45678912", [("HER-001", 1)], "PAGADO", 10),
+    ("45678912", [("ACC-002", 6), ("ACC-001", 1)], "CANCELADO", 14),
+]
+
+
+def _firmas_pedidos(session: Session) -> set[tuple[str, str, tuple[tuple[str, int], ...]]]:
+    """Identifica los pedidos existentes para no duplicar los de demostracion."""
+    stmt = select(PedidoModel).options(
+        selectinload(PedidoModel.cliente),
+        selectinload(PedidoModel.detalles).selectinload(DetallePedidoModel.producto),
+    )
+    firmas = set()
+    for pedido in session.scalars(stmt):
+        items = tuple(
+            sorted((detalle.producto.sku, detalle.cantidad) for detalle in pedido.detalles)
+        )
+        firmas.add((pedido.cliente.documento, pedido.estado, items))
+    return firmas
+
+
+def sembrar_pedidos_demo(session: Session) -> None:
+    """Crea pedidos de ejemplo para que el panel tenga actividad inicial.
+
+    La funcion es idempotente: identifica cada pedido por cliente, estado y
+    lineas, y omite los que ya existen o los que no puedan crearse por stock.
+    """
+    repo = PedidoRepositorio(session)
+    existentes = _firmas_pedidos(session)
+
+    for documento, items, estado, dias in PEDIDOS_DEMO:
+        firma = (
+            documento,
+            estado,
+            tuple(sorted((sku, cantidad) for sku, cantidad in items)),
+        )
+        if firma in existentes:
+            continue
+        try:
+            pedido = repo.crear_pedido(documento, items, estado)
+        except ErrorDominio:
+            continue
+        if dias:
+            pedido.fecha = date.today() - timedelta(days=dias)
+            session.commit()
+        existentes.add(firma)
